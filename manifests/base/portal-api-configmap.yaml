@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: portal-api-config
+  namespace: cloud-back
+data:
+  portal-api.yaml: |
+    Name: portal-api
+    Host: 0.0.0.0
+    Port: 8810
+    Timeout: 30000
+
+    Auth:
+      AccessExpiresIn: 3600
+      RefreshExpiresIn: 604800
+
+    Mysql:
+      Enabled: true
+      DataSource: root:123456@tcp(mysql.cloud-back.svc.cluster.local:3306)/cloud_back?charset=utf8mb4&parseTime=True&loc=Local
+
+    Redis:
+      Enabled: true
+      Addr: redis.cloud-back.svc.cluster.local:6379
+      Password: ""
+      DB: 0
+
+    Minio:
+      Enabled: true
+      Endpoint: minio.cloud-back.svc.cluster.local:9000
+      AccessKey: minioadmin
+      SecretKey: minioadmin
+      BucketName: cloud-back
+      UseSSL: false

@@ -1,0 +1,16 @@
+CREATE DATABASE IF NOT EXISTS cloud_back DEFAULT CHARACTER SET utf8mb4;
+USE cloud_back;
+
+CREATE TABLE IF NOT EXISTS sys_user (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  username VARCHAR(64) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  nick_name VARCHAR(128) NOT NULL,
+  role_code VARCHAR(64) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+INSERT INTO sys_user (username, password, nick_name, role_code)
+VALUES ('super_admin', 'admin123', 'Cloud Admin', 'super_admin')
+ON DUPLICATE KEY UPDATE updated_at = CURRENT_TIMESTAMP;

@@ -1,0 +1,13 @@
+FROM golang:1.25.5-alpine AS build
+
+WORKDIR /app
+COPY . .
+RUN go build -o portal-api ./application/portal-api/portal.go
+
+FROM alpine:3.21
+WORKDIR /app
+COPY --from=build /app/portal-api /app/portal-api
+COPY --from=build /app/application/portal-api/etc /app/etc
+
+EXPOSE 8810
+CMD ["/app/portal-api", "-f", "/app/etc/portal-api.yaml"]

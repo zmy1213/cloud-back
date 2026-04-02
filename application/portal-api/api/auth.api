@@ -1,0 +1,40 @@
+syntax = "v1"
+
+info(
+    title: "Cloud Portal Auth API"
+    desc: "Portal auth API modeled after kube-nova"
+    author: "cloud-back"
+    version: "1.0"
+)
+
+type (
+    TokenResponse {
+        AccessToken string `json:"accessToken"`
+        AccessExpiresIn int64 `json:"accessExpiresIn"`
+        RefreshToken string `json:"refreshToken"`
+        RefreshExpiresIn int64 `json:"refreshExpiresIn"`
+    }
+
+    LoginRequest {
+        Username string `json:"username"`
+        Password string `json:"password"`
+    }
+
+    LoginResponse {
+        UserId uint64 `json:"userId"`
+        Username string `json:"username"`
+        NickName string `json:"nickName"`
+        Uuid string `json:"uuid"`
+        Roles []string `json:"roles"`
+        Token TokenResponse `json:"token"`
+    }
+)
+
+@server(
+    group: auth
+    prefix: /portal/v1/auth
+)
+service portal-api {
+    @handler LoginHandler
+    post /login (LoginRequest) returns (LoginResponse)
+}

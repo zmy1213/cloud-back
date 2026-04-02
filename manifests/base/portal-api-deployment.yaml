@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portal-api
+  namespace: cloud-back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: portal-api
+  template:
+    metadata:
+      labels:
+        app: portal-api
+    spec:
+      containers:
+        - name: portal-api
+          image: cloud-back/portal-api:latest
+          imagePullPolicy: IfNotPresent
+          command: ["/app/portal-api"]
+          args: ["-f", "/app/etc/portal-api.yaml"]
+          ports:
+            - containerPort: 8810
+              name: http
+          volumeMounts:
+            - name: config
+              mountPath: /app/etc/portal-api.yaml
+              subPath: portal-api.yaml
+      volumes:
+        - name: config
+          configMap:
+            name: portal-api-config
