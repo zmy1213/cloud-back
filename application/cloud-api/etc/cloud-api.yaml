@@ -1,0 +1,10 @@
+# Basic service settings.
+Name: cloud-api
+Host: 0.0.0.0
+Port: 8813
+Timeout: 30000
+
+# Downstream rpc endpoints (reserved for future integration).
+CloudRpc:
+  Endpoints:
+    - 127.0.0.1:30113

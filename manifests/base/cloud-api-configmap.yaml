@@ -1,0 +1,16 @@
+# Runtime config for cloud-api service.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloud-api-config
+  namespace: cloud-back
+data:
+  # Mounted to /app/etc/cloud-api.yaml in Deployment.
+  cloud-api.yaml: |
+    Name: cloud-api
+    Host: 0.0.0.0
+    Port: 8813
+    Timeout: 30000
+    CloudRpc:
+      Endpoints:
+        - cloud-rpc:30113

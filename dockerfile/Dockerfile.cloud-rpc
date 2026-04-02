@@ -1,0 +1,16 @@
+# Build stage.
+FROM golang:1.25.5-alpine AS build
+
+WORKDIR /app
+COPY . .
+RUN go build -o cloud-rpc ./application/cloud-rpc/cloud.go
+
+# Runtime stage.
+FROM alpine:3.21
+WORKDIR /app
+COPY --from=build /app/cloud-rpc /app/cloud-rpc
+COPY --from=build /app/application/cloud-rpc/etc /app/etc
+
+EXPOSE 30113
+# Run RPC service with mounted config path.
+CMD ["/app/cloud-rpc", "-f", "/app/etc/cloud-rpc.yaml"]

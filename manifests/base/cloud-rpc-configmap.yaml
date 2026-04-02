@@ -1,0 +1,12 @@
+# Runtime config for cloud-rpc service.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloud-rpc-config
+  namespace: cloud-back
+data:
+  # Mounted to /app/etc/cloud-rpc.yaml in Deployment.
+  cloud-rpc.yaml: |
+    Name: cloud-rpc
+    ListenOn: 0.0.0.0:30113
+    Timeout: 30000

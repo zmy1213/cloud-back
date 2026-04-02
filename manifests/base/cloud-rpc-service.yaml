@@ -1,0 +1,14 @@
+# ClusterIP service for cloud-rpc.
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloud-rpc
+  namespace: cloud-back
+spec:
+  # Routes traffic to pods with app=cloud-rpc.
+  selector:
+    app: cloud-rpc
+  ports:
+    # Service port -> container port.
+    - port: 30113
+      targetPort: 30113

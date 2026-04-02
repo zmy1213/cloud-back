@@ -1,0 +1,5 @@
+# Namespace for all cloud-back workloads.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cloud-back

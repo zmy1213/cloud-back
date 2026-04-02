@@ -1,0 +1,33 @@
+# cloud-rpc workload.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud-rpc
+  namespace: cloud-back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloud-rpc
+  template:
+    metadata:
+      labels:
+        app: cloud-rpc
+    spec:
+      containers:
+        - name: cloud-rpc
+          # Replace with your registry image in real deployment.
+          image: cloud-rpc:latest
+          imagePullPolicy: IfNotPresent
+          # Explicitly point binary to mounted config file.
+          args: ["-f", "/app/etc/cloud-rpc.yaml"]
+          ports:
+            - containerPort: 30113
+          volumeMounts:
+            # Mount ConfigMap into service config directory.
+            - name: config
+              mountPath: /app/etc
+      volumes:
+        - name: config
+          configMap:
+            name: cloud-rpc-config

@@ -1,0 +1,4 @@
+# Basic service settings.
+Name: cloud-rpc
+ListenOn: 0.0.0.0:30113
+Timeout: 30000

@@ -1,0 +1,33 @@
+# cloud-api workload.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud-api
+  namespace: cloud-back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloud-api
+  template:
+    metadata:
+      labels:
+        app: cloud-api
+    spec:
+      containers:
+        - name: cloud-api
+          # Replace with your registry image in real deployment.
+          image: cloud-api:latest
+          imagePullPolicy: IfNotPresent
+          # Explicitly point binary to mounted config file.
+          args: ["-f", "/app/etc/cloud-api.yaml"]
+          ports:
+            - containerPort: 8813
+          volumeMounts:
+            # Mount ConfigMap into service config directory.
+            - name: config
+              mountPath: /app/etc
+      volumes:
+        - name: config
+          configMap:
+            name: cloud-api-config

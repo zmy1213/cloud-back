@@ -1,0 +1,16 @@
+# Build stage.
+FROM golang:1.25.5-alpine AS build
+
+WORKDIR /app
+COPY . .
+RUN go build -o cloud-api ./application/cloud-api/cloud.go
+
+# Runtime stage.
+FROM alpine:3.21
+WORKDIR /app
+COPY --from=build /app/cloud-api /app/cloud-api
+COPY --from=build /app/application/cloud-api/etc /app/etc
+
+EXPOSE 8813
+# Run API service with mounted config path.
+CMD ["/app/cloud-api", "-f", "/app/etc/cloud-api.yaml"]

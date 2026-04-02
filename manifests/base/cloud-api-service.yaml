@@ -1,0 +1,14 @@
+# ClusterIP service for cloud-api.
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloud-api
+  namespace: cloud-back
+spec:
+  # Routes traffic to pods with app=cloud-api.
+  selector:
+    app: cloud-api
+  ports:
+    # Service port -> container port.
+    - port: 8813
+      targetPort: 8813

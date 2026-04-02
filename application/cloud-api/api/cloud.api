@@ -1,0 +1,24 @@
+syntax = "v1"
+
+// goctl API definition placeholder for cloud-api.
+info(
+  title: "Cloud API"
+  desc: "Cloud backend empty API scaffold"
+  author: "cloud-back"
+  version: "1.0"
+)
+
+type PingResp {
+  // Returned text payload.
+  Message string `json:"message"`
+}
+
+@server(
+  // Group and prefix align with service naming style.
+  group: health
+  prefix: /cloud/v1
+)
+service cloud-api {
+  @doc "health ping"
+  get /ping returns (PingResp)
+}
