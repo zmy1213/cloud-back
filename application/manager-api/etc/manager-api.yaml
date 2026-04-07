@@ -8,7 +8,7 @@ Auth:
   RefreshExpiresIn: 604800
 
 Mysql:
-  Enabled: false
+  Enabled: true
   DataSource: root:zmy02284310@tcp(127.0.0.1:3306)/cloud_back?charset=utf8mb4&parseTime=True&loc=Local
 
 Redis:

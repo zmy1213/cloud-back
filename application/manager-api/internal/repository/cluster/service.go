@@ -3,6 +3,7 @@ package clusterrepo
 import (
 	"context"
 	"database/sql"
+	"log"
 	"strings"
 	"time"
 
@@ -55,38 +56,52 @@ func NewService(mysqlCfg appcfg.MysqlConfig) *Service {
 }
 
 func (s *Service) Search(name, environment string) []Cluster {
+	var dbErr error
 	if s.useDB {
-		if items, err := s.searchFromDB(name, environment); err == nil {
+		items, err := s.searchFromDB(name, environment)
+		if err == nil {
+			log.Printf("[clusterrepo] op=Search source=db name=%q environment=%q count=%d", name, environment, len(items))
 			return items
 		}
+		dbErr = err
 	}
 
-	name = strings.ToLower(strings.TrimSpace(name))
-	environment = strings.ToLower(strings.TrimSpace(environment))
+	keyword := strings.ToLower(strings.TrimSpace(name))
+	env := strings.ToLower(strings.TrimSpace(environment))
 	out := make([]Cluster, 0, len(s.clusters))
 	for _, c := range s.clusters {
-		if name != "" && !strings.Contains(strings.ToLower(c.Name), name) {
+		if keyword != "" && !strings.Contains(strings.ToLower(c.Name), keyword) {
 			continue
 		}
-		if environment != "" && strings.ToLower(c.Environment) != environment {
+		if env != "" && strings.ToLower(c.Environment) != env {
 			continue
 		}
 		out = append(out, c)
+	}
+	if dbErr != nil {
+		log.Printf("[clusterrepo] op=Search source=default fallback_reason=db_error name=%q environment=%q count=%d err=%v", name, environment, len(out), dbErr)
+	} else {
+		log.Printf("[clusterrepo] op=Search source=default fallback_reason=db_disabled name=%q environment=%q count=%d", name, environment, len(out))
 	}
 	return out
 }
 
 func (s *Service) GetByID(id uint64) (Cluster, bool) {
+	reason := "db_disabled"
 	if s.useDB {
 		if item, ok := s.getByIDFromDB(id); ok {
+			log.Printf("[clusterrepo] op=GetByID source=db id=%d hit=true", id)
 			return item, true
 		}
+		reason = "db_miss_or_error"
 	}
 	for _, c := range s.clusters {
 		if c.ID == id {
+			log.Printf("[clusterrepo] op=GetByID source=default fallback_reason=%s id=%d hit=true", reason, id)
 			return c, true
 		}
 	}
+	log.Printf("[clusterrepo] op=GetByID source=default fallback_reason=%s id=%d hit=false", reason, id)
 	return Cluster{}, false
 }
 
