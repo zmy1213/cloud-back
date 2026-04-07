@@ -12,6 +12,7 @@ type AppConfig struct {
 	Mysql MysqlConfig `yaml:"Mysql"`
 	Redis RedisConfig `yaml:"Redis"`
 	Minio MinioConfig `yaml:"Minio"`
+	K8s   K8sConfig   `yaml:"K8s"`
 }
 
 type AuthConfig struct {
@@ -38,4 +39,14 @@ type MinioConfig struct {
 	SecretKey  string `yaml:"SecretKey"`
 	BucketName string `yaml:"BucketName"`
 	UseSSL     bool   `yaml:"UseSSL"`
+}
+
+type K8sConfig struct {
+	Enabled     bool   `yaml:"Enabled"`
+	Mode        string `yaml:"Mode"`
+	Kubeconfig  string `yaml:"Kubeconfig"`
+	Context     string `yaml:"Context"`
+	ClusterName string `yaml:"ClusterName"`
+	Environment string `yaml:"Environment"`
+	ClusterType string `yaml:"ClusterType"`
 }

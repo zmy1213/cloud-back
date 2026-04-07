@@ -78,9 +78,11 @@ func NewService(mysqlCfg appcfg.MysqlConfig) *Service {
 func (s *Service) Search(params SearchParams) ([]Node, uint64) {
 	params = normalizeSearchParams(params)
 	if s.useDB {
-		if items, total, err := s.searchFromDB(params); err == nil {
-			return items, total
+		items, total, err := s.searchFromDB(params)
+		if err != nil {
+			return []Node{}, 0
 		}
+		return items, total
 	}
 
 	clusterUUID := strings.TrimSpace(params.ClusterUuid)
@@ -107,9 +109,11 @@ func (s *Service) Search(params SearchParams) ([]Node, uint64) {
 
 func (s *Service) GetByID(id uint64) (Node, bool) {
 	if s.useDB {
-		if item, ok := s.getByIDFromDB(id); ok {
-			return item, true
+		item, ok, err := s.getByIDFromDB(id)
+		if err != nil {
+			return Node{}, false
 		}
+		return item, ok
 	}
 	for _, n := range s.nodes {
 		if n.ID == id {
@@ -234,7 +238,7 @@ LIMIT ? OFFSET ?`
 	return items, total, nil
 }
 
-func (s *Service) getByIDFromDB(id uint64) (Node, bool) {
+func (s *Service) getByIDFromDB(id uint64) (Node, bool, error) {
 	query := `
 SELECT id, cluster_uuid, node_uuid, name, hostname, roles, os_image, node_ip, kernel_version,
        operating_system, architecture, cpu, memory, pods, is_gpu, runtime, join_at,
@@ -246,9 +250,12 @@ LIMIT 1`
 
 	node, err := scanNode(s.db.QueryRow(query, id))
 	if err != nil {
-		return Node{}, false
+		if err == sql.ErrNoRows {
+			return Node{}, false, nil
+		}
+		return Node{}, false, err
 	}
-	return node, true
+	return node, true, nil
 }
 
 type nodeScanner interface {

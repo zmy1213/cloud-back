@@ -1,0 +1,35 @@
+syntax = "v1"
+
+info(
+    title: "Cloud Manager Sync API"
+    desc: "Cluster sync endpoints hosted by manager-api"
+    author: "cloud-back"
+    version: "1.0"
+)
+
+type (
+    SyncClusterRequest {
+        Id uint64 `path:"id"`
+    }
+
+    SyncClusterResponse {
+        Message string `json:"message"`
+        ClusterId uint64 `json:"clusterId"`
+        ClusterUuid string `json:"clusterUuid"`
+        ClusterName string `json:"clusterName"`
+        NodeCount int `json:"nodeCount"`
+        Source string `json:"source"`
+    }
+)
+
+@server(
+    group: sync
+    prefix: /manager/v1/sync
+)
+service manager-api {
+    @handler ClusterOneSyncHandler
+    post /cluster/:id (SyncClusterRequest) returns (SyncClusterResponse)
+
+    @handler ClusterAllSyncHandler
+    post /cluster/all returns (SyncClusterResponse)
+}

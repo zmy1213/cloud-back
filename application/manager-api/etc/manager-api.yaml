@@ -24,3 +24,12 @@ Minio:
   SecretKey: minioadmin
   BucketName: cloud-back
   UseSSL: false
+
+K8s:
+  Enabled: true
+  Mode: kubeconfig
+  Kubeconfig: ""
+  Context: ""
+  ClusterName: "local-cluster"
+  Environment: "prod"
+  ClusterType: "standard"

@@ -9,3 +9,4 @@ info(
 
 import "api/cluster.api"
 import "api/node.api"
+import "api/sync.api"

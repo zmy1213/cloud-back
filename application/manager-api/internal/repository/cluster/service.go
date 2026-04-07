@@ -56,14 +56,14 @@ func NewService(mysqlCfg appcfg.MysqlConfig) *Service {
 }
 
 func (s *Service) Search(name, environment string) []Cluster {
-	var dbErr error
 	if s.useDB {
 		items, err := s.searchFromDB(name, environment)
 		if err == nil {
 			log.Printf("[clusterrepo] op=Search source=db name=%q environment=%q count=%d", name, environment, len(items))
 			return items
 		}
-		dbErr = err
+		log.Printf("[clusterrepo] op=Search source=db query_error=true name=%q environment=%q err=%v", name, environment, err)
+		return []Cluster{}
 	}
 
 	keyword := strings.ToLower(strings.TrimSpace(name))
@@ -78,30 +78,27 @@ func (s *Service) Search(name, environment string) []Cluster {
 		}
 		out = append(out, c)
 	}
-	if dbErr != nil {
-		log.Printf("[clusterrepo] op=Search source=default fallback_reason=db_error name=%q environment=%q count=%d err=%v", name, environment, len(out), dbErr)
-	} else {
-		log.Printf("[clusterrepo] op=Search source=default fallback_reason=db_disabled name=%q environment=%q count=%d", name, environment, len(out))
-	}
+	log.Printf("[clusterrepo] op=Search source=default fallback_reason=db_disabled name=%q environment=%q count=%d", name, environment, len(out))
 	return out
 }
 
 func (s *Service) GetByID(id uint64) (Cluster, bool) {
-	reason := "db_disabled"
 	if s.useDB {
-		if item, ok := s.getByIDFromDB(id); ok {
-			log.Printf("[clusterrepo] op=GetByID source=db id=%d hit=true", id)
-			return item, true
+		item, ok, err := s.getByIDFromDB(id)
+		if err != nil {
+			log.Printf("[clusterrepo] op=GetByID source=db id=%d query_error=true err=%v", id, err)
+			return Cluster{}, false
 		}
-		reason = "db_miss_or_error"
+		log.Printf("[clusterrepo] op=GetByID source=db id=%d hit=%t", id, ok)
+		return item, ok
 	}
 	for _, c := range s.clusters {
 		if c.ID == id {
-			log.Printf("[clusterrepo] op=GetByID source=default fallback_reason=%s id=%d hit=true", reason, id)
+			log.Printf("[clusterrepo] op=GetByID source=default fallback_reason=db_disabled id=%d hit=true", id)
 			return c, true
 		}
 	}
-	log.Printf("[clusterrepo] op=GetByID source=default fallback_reason=%s id=%d hit=false", reason, id)
+	log.Printf("[clusterrepo] op=GetByID source=default fallback_reason=db_disabled id=%d hit=false", id)
 	return Cluster{}, false
 }
 
@@ -142,7 +139,7 @@ WHERE is_deleted = 0
 	return items, rows.Err()
 }
 
-func (s *Service) getByIDFromDB(id uint64) (Cluster, bool) {
+func (s *Service) getByIDFromDB(id uint64) (Cluster, bool, error) {
 	query := `
 SELECT id, name, avatar, environment, cluster_type, version, status, health_status, uuid,
        cpu_usage, memory_usage, pod_usage, storage_usage, created_at
@@ -153,9 +150,12 @@ LIMIT 1
 	row := s.db.QueryRow(query, id)
 	c, err := scanCluster(row)
 	if err != nil {
-		return Cluster{}, false
+		if err == sql.ErrNoRows {
+			return Cluster{}, false, nil
+		}
+		return Cluster{}, false, err
 	}
-	return c, true
+	return c, true, nil
 }
 
 type clusterScanner interface {
