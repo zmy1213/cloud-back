@@ -1,0 +1,26 @@
+Name: manager-api
+Host: 0.0.0.0
+Port: 8811
+Timeout: 30000
+
+Auth:
+  AccessExpiresIn: 3600
+  RefreshExpiresIn: 604800
+
+Mysql:
+  Enabled: false
+  DataSource: root:zmy02284310@tcp(127.0.0.1:3306)/cloud_back?charset=utf8mb4&parseTime=True&loc=Local
+
+Redis:
+  Enabled: false
+  Addr: 127.0.0.1:6379
+  Password: ""
+  DB: 0
+
+Minio:
+  Enabled: false
+  Endpoint: 127.0.0.1:9000
+  AccessKey: minioadmin
+  SecretKey: minioadmin
+  BucketName: cloud-back
+  UseSSL: false

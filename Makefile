@@ -1,7 +1,7 @@
 PROJECT_NAME=cloud-back
 APPLICATION_DIR := $(shell pwd)/application
 
-.PHONY: tidy run-portal-api run-cloud-api run-cloud-rpc build-portal-api build-cloud-api build-cloud-rpc test
+.PHONY: tidy run-portal-api run-manager-api run-cloud-api run-cloud-rpc build-portal-api build-manager-api build-cloud-api build-cloud-rpc test
 
 tidy:
 	@echo "updating go dependencies..."
@@ -10,6 +10,10 @@ tidy:
 run-portal-api:
 	@echo "starting portal-api..."
 	@go run $(APPLICATION_DIR)/portal-api/portal.go -f $(APPLICATION_DIR)/portal-api/etc/portal-api.yaml
+
+run-manager-api:
+	@echo "starting manager-api..."
+	@go run $(APPLICATION_DIR)/manager-api/manager.go -f $(APPLICATION_DIR)/manager-api/etc/manager-api.yaml
 
 # backward-compatible targets
 run-cloud-api:
@@ -23,6 +27,10 @@ run-cloud-rpc:
 build-portal-api:
 	@mkdir -p dist
 	@go build -o dist/portal-api $(APPLICATION_DIR)/portal-api/portal.go
+
+build-manager-api:
+	@mkdir -p dist
+	@go build -o dist/manager-api $(APPLICATION_DIR)/manager-api/manager.go
 
 build-cloud-api:
 	@mkdir -p dist

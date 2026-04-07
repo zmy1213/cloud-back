@@ -1,0 +1,12 @@
+syntax = "v1"
+
+info(
+    title: "Cloud Portal API"
+    desc: "Aggregated API entry for portal-api modules"
+    author: "cloud-back"
+    version: "1.0"
+)
+
+import "api/auth.api"
+import "api/dashboard.api"
+import "api/cluster.api"

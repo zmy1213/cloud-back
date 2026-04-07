@@ -1,0 +1,53 @@
+syntax = "v1"
+
+info(
+    title: "Cloud Manager Cluster API"
+    desc: "Cross-cluster query endpoints aligned with kube-nova naming"
+    author: "cloud-back"
+    version: "1.0"
+)
+
+type (
+    SearchClusterRequest {
+        Name string `form:"name,optional"`
+        Environment string `form:"environment,optional"`
+    }
+
+    GetClusterDetailRequest {
+        Id uint64 `path:"id"`
+    }
+
+    Cluster {
+        Id uint64 `json:"id"`
+        Name string `json:"name"`
+        Avatar string `json:"avatar"`
+        Environment string `json:"environment"`
+        ClusterType string `json:"clusterType"`
+        Version string `json:"version"`
+        Status int64 `json:"status"`
+        HealthStatus int64 `json:"healthStatus"`
+        Uuid string `json:"uuid"`
+        CpuUsage float64 `json:"cpuUsage"`
+        MemoryUsage float64 `json:"memoryUsage"`
+        PodUsage float64 `json:"podUsage"`
+        StorageUsage float64 `json:"storageUsage"`
+        CreatedAt int64 `json:"createdAt"`
+    }
+
+    SearchClusterResponse {
+        Items []Cluster `json:"items"`
+        Total int `json:"total"`
+    }
+)
+
+@server(
+    group: cluster
+    prefix: /manager/v1/cluster
+)
+service portal-api {
+    @handler SearchClusterHandler
+    get / (SearchClusterRequest) returns (SearchClusterResponse)
+
+    @handler GetClusterDetailHandler
+    get /:id (GetClusterDetailRequest) returns (Cluster)
+}

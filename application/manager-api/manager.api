@@ -1,0 +1,11 @@
+syntax = "v1"
+
+info(
+    title: "Cloud Manager API"
+    desc: "Aggregated API entry for manager-api"
+    author: "cloud-back"
+    version: "1.0"
+)
+
+import "api/cluster.api"
+import "api/node.api"

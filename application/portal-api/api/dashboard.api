@@ -1,0 +1,55 @@
+syntax = "v1"
+
+info(
+    title: "Cloud Portal Dashboard API"
+    desc: "Workbench dashboard endpoints"
+    author: "cloud-back"
+    version: "1.0"
+)
+
+type (
+    DashboardOverviewRequest {
+        Username string `form:"username,optional"`
+        ClusterUuid string `form:"clusterUuid,optional"`
+    }
+
+    DashboardStat {
+        Id string `json:"id"`
+        Title string `json:"title"`
+        Value string `json:"value"`
+        Trend string `json:"trend"`
+        Up bool `json:"up"`
+        Icon string `json:"icon"`
+        Caption string `json:"caption"`
+    }
+
+    DashboardAction {
+        Id string `json:"id"`
+        Title string `json:"title"`
+        Description string `json:"description"`
+        Route string `json:"route"`
+    }
+
+    DashboardActivity {
+        Id string `json:"id"`
+        Title string `json:"title"`
+        Detail string `json:"detail"`
+        Timestamp int64 `json:"timestamp"`
+    }
+
+    DashboardOverviewResponse {
+        WelcomeName string `json:"welcomeName"`
+        Stats []DashboardStat `json:"stats"`
+        Actions []DashboardAction `json:"actions"`
+        Activities []DashboardActivity `json:"activities"`
+    }
+)
+
+@server(
+    group: dashboard
+    prefix: /portal/v1/dashboard
+)
+service portal-api {
+    @handler DashboardOverviewHandler
+    get /overview (DashboardOverviewRequest) returns (DashboardOverviewResponse)
+}

@@ -1,0 +1,85 @@
+syntax = "v1"
+
+info(
+    title: "Cloud Manager Node API"
+    desc: "Node management endpoints hosted by manager-api"
+    author: "cloud-back"
+    version: "1.0"
+)
+
+type (
+    ClusterNodeInfo {
+        Id uint64 `json:"id"`
+        ClusterUuid string `json:"clusterUuid"`
+        NodeName string `json:"nodeName"`
+        NodeIp string `json:"nodeIp"`
+        NodeStatus string `json:"nodeStatus"`
+        CpuUsge float64 `json:"cpuUsge"`
+        MemoryUsge float64 `json:"memoryUsge"`
+        PodTotal int64 `json:"podTotal"`
+        PodUsge int64 `json:"podUsge"`
+        CreatedAt int64 `json:"createdAt"`
+        UpdatedAt int64 `json:"updatedAt"`
+        NodeRole string `json:"nodeRole"`
+        Architecture string `json:"architecture"`
+        Unschedulable int64 `json:"unschedulable"`
+    }
+
+    ClusterNodeDetail {
+        Id uint64 `json:"id"`
+        ClusterUuid string `json:"clusterUuid"`
+        NodeUuid string `json:"nodeUuid"`
+        Name string `json:"name"`
+        Hostname string `json:"hostname"`
+        Roles string `json:"roles"`
+        OsImage string `json:"osImage"`
+        NodeIp string `json:"nodeIp"`
+        KernelVersion string `json:"kernelVersion"`
+        OperatingSystem string `json:"operatingSystem"`
+        Architecture string `json:"architecture"`
+        Cpu float64 `json:"cpu"`
+        Memory float64 `json:"memory"`
+        Pods int64 `json:"pods"`
+        IsGpu int64 `json:"isGpu"`
+        Runtime string `json:"runtime"`
+        JoinAt int64 `json:"joinAt"`
+        Unschedulable int64 `json:"unschedulable"`
+        KubeletVersion string `json:"kubeletVersion"`
+        Status string `json:"status"`
+        PodCidr string `json:"podCidr"`
+        PodCidrs string `json:"podCidrs"`
+        CreatedBy string `json:"createdBy"`
+        UpdatedBy string `json:"updatedBy"`
+        CreatedAt int64 `json:"createdAt"`
+        UpdatedAt int64 `json:"updatedAt"`
+    }
+
+    SearchClusterNodeRequest {
+        Page uint64 `form:"page,optional"`
+        PageSize uint64 `form:"pageSize,optional"`
+        OrderField string `form:"orderField,optional"`
+        IsAsc bool `form:"isAsc,optional"`
+        ClusterUuid string `form:"clusterUuid"`
+    }
+
+    SearchClusterNodeResponse {
+        Items []ClusterNodeInfo `json:"items"`
+        Total uint64 `json:"total"`
+    }
+
+    NodeIdRequest {
+        Id uint64 `path:"id"`
+    }
+)
+
+@server(
+    group: node
+    prefix: /manager/v1/node
+)
+service manager-api {
+    @handler GetNodeListHandler
+    get / (SearchClusterNodeRequest) returns (SearchClusterNodeResponse)
+
+    @handler GetNodeDetailHandler
+    get /:id (NodeIdRequest) returns (ClusterNodeDetail)
+}
