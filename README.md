@@ -63,6 +63,84 @@ mc alias set local http://127.0.0.1:9000 minioadmin minioadmin
 mc mb local/cloud-back || true
 ```
 
+## 本地安装 Prometheus（用于中间件连接测试）
+
+下面以 macOS + 本地 Kubernetes（kind / Docker Desktop Kubernetes）为例，安装 `kube-prometheus-stack`。
+
+1. 准备 Helm 仓库
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+```
+
+2. 安装 Prometheus 栈（包含 Prometheus / Alertmanager / Grafana）
+
+```bash
+kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+helm upgrade --install kps prometheus-community/kube-prometheus-stack \
+  -n monitoring \
+  --wait \
+  --timeout 10m
+```
+
+3. 检查安装状态
+
+```bash
+helm status kps -n monitoring
+kubectl -n monitoring get pods
+```
+
+4. 暴露 Prometheus 到本地 `9090` 端口
+
+```bash
+kubectl -n monitoring port-forward svc/kps-kube-prometheus-stack-prometheus 9090:9090
+```
+
+访问：
+
+```text
+http://127.0.0.1:9090/graph
+```
+
+5. （可选）采集 Mac 主机 CPU/内存指标
+
+先安装并启动主机侧 `node_exporter`：
+
+```bash
+brew install node_exporter
+brew services start node_exporter
+curl http://127.0.0.1:9100/metrics | head
+```
+
+然后给 Prometheus 增加抓取任务：
+
+```bash
+cat > /tmp/kps-mac-host.yaml <<'EOF'
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigs:
+      - job_name: mac-host
+        scrape_interval: 15s
+        static_configs:
+          - targets:
+              - host.docker.internal:9100
+EOF
+
+helm upgrade --install kps prometheus-community/kube-prometheus-stack \
+  -n monitoring \
+  -f /tmp/kps-mac-host.yaml \
+  --wait \
+  --timeout 10m
+```
+
+验证：
+
+```bash
+kubectl -n monitoring exec -it prometheus-kps-kube-prometheus-stack-prometheus-0 -c prometheus -- \
+  wget -qO- 'http://localhost:9090/api/v1/query?query=up{job="mac-host"}'
+```
+
 ## 如何修改连接信息
 
 本地运行时修改这个文件：
@@ -104,6 +182,7 @@ Minio:
 cd /Users/zhuzhumingyang/githubProjects/kube-nova/cloud-back
 go mod tidy
 make run-portal-api
+make run-manager-api
 ```
 
 ## 连接测试（推荐）

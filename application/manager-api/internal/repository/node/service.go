@@ -3,6 +3,7 @@ package noderepo
 import (
 	"context"
 	"database/sql"
+	"log"
 	"strings"
 	"time"
 
@@ -80,8 +81,16 @@ func (s *Service) Search(params SearchParams) ([]Node, uint64) {
 	if s.useDB {
 		items, total, err := s.searchFromDB(params)
 		if err != nil {
+			log.Printf(
+				"[noderepo] op=Search source=db cluster_uuid=%q page=%d page_size=%d query_error=true err=%v",
+				params.ClusterUuid, params.Page, params.PageSize, err,
+			)
 			return []Node{}, 0
 		}
+		log.Printf(
+			"[noderepo] op=Search source=db cluster_uuid=%q page=%d page_size=%d total=%d count=%d",
+			params.ClusterUuid, params.Page, params.PageSize, total, len(items),
+		)
 		return items, total
 	}
 
@@ -98,28 +107,41 @@ func (s *Service) Search(params SearchParams) ([]Node, uint64) {
 	total := uint64(len(filtered))
 	start := int((params.Page - 1) * params.PageSize)
 	if start >= len(filtered) {
+		log.Printf(
+			"[noderepo] op=Search source=default fallback_reason=db_disabled cluster_uuid=%q page=%d page_size=%d total=%d count=0",
+			params.ClusterUuid, params.Page, params.PageSize, total,
+		)
 		return []Node{}, total
 	}
 	end := start + int(params.PageSize)
 	if end > len(filtered) {
 		end = len(filtered)
 	}
-	return filtered[start:end], total
+	items := filtered[start:end]
+	log.Printf(
+		"[noderepo] op=Search source=default fallback_reason=db_disabled cluster_uuid=%q page=%d page_size=%d total=%d count=%d",
+		params.ClusterUuid, params.Page, params.PageSize, total, len(items),
+	)
+	return items, total
 }
 
 func (s *Service) GetByID(id uint64) (Node, bool) {
 	if s.useDB {
 		item, ok, err := s.getByIDFromDB(id)
 		if err != nil {
+			log.Printf("[noderepo] op=GetByID source=db id=%d query_error=true err=%v", id, err)
 			return Node{}, false
 		}
+		log.Printf("[noderepo] op=GetByID source=db id=%d hit=%t", id, ok)
 		return item, ok
 	}
 	for _, n := range s.nodes {
 		if n.ID == id {
+			log.Printf("[noderepo] op=GetByID source=default fallback_reason=db_disabled id=%d hit=true", id)
 			return n, true
 		}
 	}
+	log.Printf("[noderepo] op=GetByID source=default fallback_reason=db_disabled id=%d hit=false", id)
 	return Node{}, false
 }
 

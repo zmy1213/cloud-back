@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	apphandler "github.com/yanshicheng/cloud-back/application/manager-api/internal/handler/app"
 	clusterhandler "github.com/yanshicheng/cloud-back/application/manager-api/internal/handler/cluster"
 	healthzhandler "github.com/yanshicheng/cloud-back/application/manager-api/internal/handler/healthz"
 	nodehandler "github.com/yanshicheng/cloud-back/application/manager-api/internal/handler/node"
@@ -15,6 +16,9 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("/manager/v1/cluster/", clusterhandler.GetClusterDetailHandler(h.svcCtx))
 	mux.HandleFunc("/manager/v1/node", nodehandler.GetNodeListHandler(h.svcCtx))
 	mux.HandleFunc("/manager/v1/node/", nodehandler.GetNodeDetailHandler(h.svcCtx))
+	mux.HandleFunc("/manager/v1/app", apphandler.AddClusterAppHandler(h.svcCtx))
+	mux.HandleFunc("/manager/v1/app/list", apphandler.GetClusterAppListHandler(h.svcCtx))
+	mux.HandleFunc("/manager/v1/app/", apphandler.AppDetailOrValidateHandler(h.svcCtx))
 	mux.HandleFunc("/manager/v1/sync/cluster/all", synchandler.ClusterAllSyncHandler(h.svcCtx))
 	mux.HandleFunc("/manager/v1/sync/cluster/", synchandler.ClusterOneSyncHandler(h.svcCtx))
 }

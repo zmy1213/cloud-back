@@ -118,3 +118,58 @@ ON DUPLICATE KEY UPDATE
   updated_by = VALUES(updated_by),
   is_deleted = VALUES(is_deleted),
   updated_at = CURRENT_TIMESTAMP;
+
+CREATE TABLE IF NOT EXISTS onec_cluster_app (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  cluster_uuid VARCHAR(64) NOT NULL DEFAULT '',
+  app_name VARCHAR(64) NOT NULL DEFAULT '',
+  app_code VARCHAR(64) NOT NULL DEFAULT '',
+  app_type INT NOT NULL DEFAULT 1,
+  is_default TINYINT(1) NOT NULL DEFAULT 0,
+  app_url VARCHAR(500) NOT NULL DEFAULT '',
+  port INT NOT NULL DEFAULT 0,
+  protocol VARCHAR(16) NOT NULL DEFAULT 'http',
+  auth_enabled TINYINT(1) NOT NULL DEFAULT 0,
+  auth_type VARCHAR(32) NOT NULL DEFAULT 'none',
+  username VARCHAR(128) NOT NULL DEFAULT '',
+  password VARCHAR(500) NOT NULL DEFAULT '',
+  token TEXT,
+  access_key VARCHAR(128) NOT NULL DEFAULT '',
+  access_secret VARCHAR(128) NOT NULL DEFAULT '',
+  tls_enabled TINYINT(1) NOT NULL DEFAULT 0,
+  ca_file TEXT,
+  ca_key TEXT,
+  ca_cert TEXT,
+  client_cert TEXT,
+  client_key TEXT,
+  insecure_skip_verify TINYINT(1) NOT NULL DEFAULT 0,
+  status TINYINT(1) NOT NULL DEFAULT 1,
+  created_by VARCHAR(32) NOT NULL DEFAULT 'system',
+  updated_by VARCHAR(32) NOT NULL DEFAULT 'system',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+  UNIQUE KEY uk_cluster_app (cluster_uuid, app_code, app_type),
+  KEY idx_cluster_uuid (cluster_uuid),
+  KEY idx_app_type (app_type),
+  KEY idx_status (status),
+  KEY idx_is_deleted (is_deleted)
+);
+
+INSERT INTO onec_cluster_app
+  (id, cluster_uuid, app_name, app_code, app_type, is_default, app_url, port, protocol, auth_enabled, auth_type, status, created_by, updated_by, is_deleted)
+VALUES
+  (1, '11111111-1111-1111-1111-111111111111', 'Prometheus-prod-hz', 'prometheus', 1, 0, 'prometheus.example.local', 9090, 'http', 0, 'none', 1, 'system', 'system', 0),
+  (2, '11111111-1111-1111-1111-111111111111', 'Grafana-prod-hz', 'grafana', 1, 0, 'grafana.example.local', 3000, 'http', 0, 'none', 1, 'system', 'system', 0),
+  (3, '22222222-2222-2222-2222-222222222222', 'Jaeger-staging-sh', 'jaeger', 3, 0, 'jaeger.example.local', 16686, 'http', 0, 'none', 0, 'system', 'system', 0)
+ON DUPLICATE KEY UPDATE
+  app_name = VALUES(app_name),
+  app_url = VALUES(app_url),
+  port = VALUES(port),
+  protocol = VALUES(protocol),
+  auth_enabled = VALUES(auth_enabled),
+  auth_type = VALUES(auth_type),
+  status = VALUES(status),
+  updated_by = VALUES(updated_by),
+  is_deleted = VALUES(is_deleted),
+  updated_at = CURRENT_TIMESTAMP;
