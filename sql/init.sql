@@ -119,6 +119,51 @@ ON DUPLICATE KEY UPDATE
   is_deleted = VALUES(is_deleted),
   updated_at = CURRENT_TIMESTAMP;
 
+CREATE TABLE IF NOT EXISTS onec_project_workspace (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  project_cluster_id BIGINT UNSIGNED NOT NULL,
+  project_id BIGINT UNSIGNED NOT NULL,
+  cluster_uuid VARCHAR(64) NOT NULL,
+  cluster_name VARCHAR(128) NOT NULL DEFAULT '',
+  name VARCHAR(100) NOT NULL DEFAULT '',
+  namespace VARCHAR(63) NOT NULL,
+  description VARCHAR(500) NOT NULL DEFAULT '',
+  cpu_allocated DOUBLE NOT NULL DEFAULT 0,
+  mem_allocated DOUBLE NOT NULL DEFAULT 0,
+  storage_allocated DOUBLE NOT NULL DEFAULT 0,
+  gpu_allocated DOUBLE NOT NULL DEFAULT 0,
+  pods_allocated BIGINT NOT NULL DEFAULT 0,
+  created_by VARCHAR(64) NOT NULL DEFAULT 'system',
+  updated_by VARCHAR(64) NOT NULL DEFAULT 'system',
+  is_deleted TINYINT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_project_cluster_namespace (project_cluster_id, namespace),
+  KEY idx_project_cluster_id (project_cluster_id),
+  KEY idx_project_id (project_id),
+  KEY idx_cluster_uuid (cluster_uuid),
+  KEY idx_is_deleted (is_deleted)
+);
+
+INSERT INTO onec_project_workspace
+  (id, project_cluster_id, project_id, cluster_uuid, cluster_name, name, namespace, description,
+   cpu_allocated, mem_allocated, storage_allocated, gpu_allocated, pods_allocated,
+   created_by, updated_by, is_deleted)
+VALUES
+  (1, 1, 2, '11111111-1111-1111-1111-111111111111', 'prod-hz', '默认研发空间', 'dev-default', '默认研发工作空间',
+   2, 4, 20, 0, 30, 'system', 'system', 0)
+ON DUPLICATE KEY UPDATE
+  name = VALUES(name),
+  description = VALUES(description),
+  cpu_allocated = VALUES(cpu_allocated),
+  mem_allocated = VALUES(mem_allocated),
+  storage_allocated = VALUES(storage_allocated),
+  gpu_allocated = VALUES(gpu_allocated),
+  pods_allocated = VALUES(pods_allocated),
+  updated_by = VALUES(updated_by),
+  is_deleted = VALUES(is_deleted),
+  updated_at = CURRENT_TIMESTAMP;
+
 CREATE TABLE IF NOT EXISTS onec_cluster_app (
   id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
   cluster_uuid VARCHAR(64) NOT NULL DEFAULT '',
@@ -170,6 +215,181 @@ ON DUPLICATE KEY UPDATE
   auth_enabled = VALUES(auth_enabled),
   auth_type = VALUES(auth_type),
   status = VALUES(status),
+  updated_by = VALUES(updated_by),
+  is_deleted = VALUES(is_deleted),
+  updated_at = CURRENT_TIMESTAMP;
+
+CREATE TABLE IF NOT EXISTS onec_project (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL DEFAULT '',
+  uuid CHAR(36) NOT NULL UNIQUE,
+  description VARCHAR(500) NOT NULL DEFAULT '',
+  is_system TINYINT NOT NULL DEFAULT 0,
+  created_by VARCHAR(64) NOT NULL DEFAULT 'system',
+  updated_by VARCHAR(64) NOT NULL DEFAULT 'system',
+  is_deleted TINYINT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_name (name),
+  KEY idx_is_system (is_system),
+  KEY idx_is_deleted (is_deleted)
+);
+
+CREATE TABLE IF NOT EXISTS onec_project_admin (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  project_id BIGINT UNSIGNED NOT NULL,
+  user_id BIGINT UNSIGNED NOT NULL,
+  is_deleted TINYINT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_project_user (project_id, user_id),
+  KEY idx_project_id (project_id),
+  KEY idx_user_id (user_id),
+  KEY idx_is_deleted (is_deleted)
+);
+
+CREATE TABLE IF NOT EXISTS onec_project_cluster (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  project_id BIGINT UNSIGNED NOT NULL,
+  cluster_uuid VARCHAR(64) NOT NULL,
+  cluster_name VARCHAR(128) NOT NULL DEFAULT '',
+  cpu_limit DOUBLE NOT NULL DEFAULT 0,
+  cpu_overcommit_ratio DOUBLE NOT NULL DEFAULT 1,
+  cpu_capacity DOUBLE NOT NULL DEFAULT 0,
+  cpu_allocated DOUBLE NOT NULL DEFAULT 0,
+  mem_limit DOUBLE NOT NULL DEFAULT 0,
+  mem_overcommit_ratio DOUBLE NOT NULL DEFAULT 1,
+  mem_capacity DOUBLE NOT NULL DEFAULT 0,
+  mem_allocated DOUBLE NOT NULL DEFAULT 0,
+  storage_limit DOUBLE NOT NULL DEFAULT 0,
+  storage_allocated DOUBLE NOT NULL DEFAULT 0,
+  gpu_limit DOUBLE NOT NULL DEFAULT 0,
+  gpu_overcommit_ratio DOUBLE NOT NULL DEFAULT 1,
+  gpu_capacity DOUBLE NOT NULL DEFAULT 0,
+  gpu_allocated DOUBLE NOT NULL DEFAULT 0,
+  pods_limit BIGINT NOT NULL DEFAULT 0,
+  pods_allocated BIGINT NOT NULL DEFAULT 0,
+  configmap_limit BIGINT NOT NULL DEFAULT 0,
+  configmap_allocated BIGINT NOT NULL DEFAULT 0,
+  secret_limit BIGINT NOT NULL DEFAULT 0,
+  secret_allocated BIGINT NOT NULL DEFAULT 0,
+  pvc_limit BIGINT NOT NULL DEFAULT 0,
+  pvc_allocated BIGINT NOT NULL DEFAULT 0,
+  ephemeral_storage_limit DOUBLE NOT NULL DEFAULT 0,
+  ephemeral_storage_allocated DOUBLE NOT NULL DEFAULT 0,
+  service_limit BIGINT NOT NULL DEFAULT 0,
+  service_allocated BIGINT NOT NULL DEFAULT 0,
+  loadbalancers_limit BIGINT NOT NULL DEFAULT 0,
+  loadbalancers_allocated BIGINT NOT NULL DEFAULT 0,
+  nodeports_limit BIGINT NOT NULL DEFAULT 0,
+  nodeports_allocated BIGINT NOT NULL DEFAULT 0,
+  deployments_limit BIGINT NOT NULL DEFAULT 0,
+  deployments_allocated BIGINT NOT NULL DEFAULT 0,
+  jobs_limit BIGINT NOT NULL DEFAULT 0,
+  jobs_allocated BIGINT NOT NULL DEFAULT 0,
+  cronjobs_limit BIGINT NOT NULL DEFAULT 0,
+  cronjobs_allocated BIGINT NOT NULL DEFAULT 0,
+  daemonsets_limit BIGINT NOT NULL DEFAULT 0,
+  daemonsets_allocated BIGINT NOT NULL DEFAULT 0,
+  statefulsets_limit BIGINT NOT NULL DEFAULT 0,
+  statefulsets_allocated BIGINT NOT NULL DEFAULT 0,
+  ingresses_limit BIGINT NOT NULL DEFAULT 0,
+  ingresses_allocated BIGINT NOT NULL DEFAULT 0,
+  created_by VARCHAR(64) NOT NULL DEFAULT 'system',
+  updated_by VARCHAR(64) NOT NULL DEFAULT 'system',
+  is_deleted TINYINT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_project_cluster (project_id, cluster_uuid),
+  KEY idx_project_id (project_id),
+  KEY idx_cluster_uuid (cluster_uuid),
+  KEY idx_is_deleted (is_deleted)
+);
+
+INSERT INTO onec_project
+  (id, name, uuid, description, is_system, created_by, updated_by, is_deleted)
+VALUES
+  (1, '系统项目', '00000000-0000-0000-0000-000000000001', '平台系统默认项目', 1, 'system', 'system', 0),
+  (2, '研发项目', '00000000-0000-0000-0000-000000000002', '默认研发项目', 0, 'system', 'system', 0)
+ON DUPLICATE KEY UPDATE
+  name = VALUES(name),
+  description = VALUES(description),
+  is_system = VALUES(is_system),
+  updated_by = VALUES(updated_by),
+  is_deleted = VALUES(is_deleted),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO onec_project_admin
+  (id, project_id, user_id, is_deleted)
+VALUES
+  (1, 1, 1, 0),
+  (2, 2, 1, 0)
+ON DUPLICATE KEY UPDATE
+  is_deleted = VALUES(is_deleted);
+
+INSERT INTO onec_project_cluster
+  (id, project_id, cluster_uuid, cluster_name, cpu_limit, cpu_overcommit_ratio, cpu_capacity, cpu_allocated,
+   mem_limit, mem_overcommit_ratio, mem_capacity, mem_allocated, storage_limit, storage_allocated,
+   gpu_limit, gpu_overcommit_ratio, gpu_capacity, gpu_allocated, pods_limit, pods_allocated,
+   configmap_limit, configmap_allocated, secret_limit, secret_allocated, pvc_limit, pvc_allocated,
+   ephemeral_storage_limit, ephemeral_storage_allocated, service_limit, service_allocated,
+   loadbalancers_limit, loadbalancers_allocated, nodeports_limit, nodeports_allocated,
+   deployments_limit, deployments_allocated, jobs_limit, jobs_allocated, cronjobs_limit, cronjobs_allocated,
+   daemonsets_limit, daemonsets_allocated, statefulsets_limit, statefulsets_allocated, ingresses_limit, ingresses_allocated,
+   created_by, updated_by, is_deleted)
+VALUES
+  (1, 2, '11111111-1111-1111-1111-111111111111', 'prod-hz', 12, 1.5, 18, 4.5,
+   32, 1.2, 38.4, 12.8, 500, 120,
+   2, 1, 2, 1, 100, 36,
+   100, 10, 100, 12, 100, 8,
+   120, 14, 80, 10,
+   5, 1, 20, 2,
+   80, 16, 20, 2, 20, 1,
+   10, 1, 30, 3, 50, 6,
+   'system', 'system', 0)
+ON DUPLICATE KEY UPDATE
+  cluster_name = VALUES(cluster_name),
+  cpu_limit = VALUES(cpu_limit),
+  cpu_overcommit_ratio = VALUES(cpu_overcommit_ratio),
+  cpu_capacity = VALUES(cpu_capacity),
+  cpu_allocated = VALUES(cpu_allocated),
+  mem_limit = VALUES(mem_limit),
+  mem_overcommit_ratio = VALUES(mem_overcommit_ratio),
+  mem_capacity = VALUES(mem_capacity),
+  mem_allocated = VALUES(mem_allocated),
+  storage_limit = VALUES(storage_limit),
+  storage_allocated = VALUES(storage_allocated),
+  gpu_limit = VALUES(gpu_limit),
+  gpu_overcommit_ratio = VALUES(gpu_overcommit_ratio),
+  gpu_capacity = VALUES(gpu_capacity),
+  gpu_allocated = VALUES(gpu_allocated),
+  pods_limit = VALUES(pods_limit),
+  pods_allocated = VALUES(pods_allocated),
+  configmap_limit = VALUES(configmap_limit),
+  configmap_allocated = VALUES(configmap_allocated),
+  secret_limit = VALUES(secret_limit),
+  secret_allocated = VALUES(secret_allocated),
+  pvc_limit = VALUES(pvc_limit),
+  pvc_allocated = VALUES(pvc_allocated),
+  ephemeral_storage_limit = VALUES(ephemeral_storage_limit),
+  ephemeral_storage_allocated = VALUES(ephemeral_storage_allocated),
+  service_limit = VALUES(service_limit),
+  service_allocated = VALUES(service_allocated),
+  loadbalancers_limit = VALUES(loadbalancers_limit),
+  loadbalancers_allocated = VALUES(loadbalancers_allocated),
+  nodeports_limit = VALUES(nodeports_limit),
+  nodeports_allocated = VALUES(nodeports_allocated),
+  deployments_limit = VALUES(deployments_limit),
+  deployments_allocated = VALUES(deployments_allocated),
+  jobs_limit = VALUES(jobs_limit),
+  jobs_allocated = VALUES(jobs_allocated),
+  cronjobs_limit = VALUES(cronjobs_limit),
+  cronjobs_allocated = VALUES(cronjobs_allocated),
+  daemonsets_limit = VALUES(daemonsets_limit),
+  daemonsets_allocated = VALUES(daemonsets_allocated),
+  statefulsets_limit = VALUES(statefulsets_limit),
+  statefulsets_allocated = VALUES(statefulsets_allocated),
+  ingresses_limit = VALUES(ingresses_limit),
+  ingresses_allocated = VALUES(ingresses_allocated),
   updated_by = VALUES(updated_by),
   is_deleted = VALUES(is_deleted),
   updated_at = CURRENT_TIMESTAMP;

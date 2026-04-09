@@ -5,6 +5,7 @@ import (
 	clusterrepo "github.com/yanshicheng/cloud-back/application/manager-api/internal/repository/cluster"
 	clustersyncrepo "github.com/yanshicheng/cloud-back/application/manager-api/internal/repository/clustersync"
 	noderepo "github.com/yanshicheng/cloud-back/application/manager-api/internal/repository/node"
+	projectrepo "github.com/yanshicheng/cloud-back/application/manager-api/internal/repository/project"
 	appcfg "github.com/yanshicheng/cloud-back/common/config"
 )
 
@@ -13,6 +14,7 @@ type ServiceContext struct {
 	Cluster *clusterrepo.Service
 	Node    *noderepo.Service
 	App     *apprepo.Service
+	Project *projectrepo.Service
 	Sync    *clustersyncrepo.Service
 }
 
@@ -22,6 +24,7 @@ func NewServiceContext(cfg appcfg.AppConfig) *ServiceContext {
 		Cluster: clusterrepo.NewService(cfg.Mysql),
 		Node:    noderepo.NewService(cfg.Mysql),
 		App:     apprepo.NewService(cfg.Mysql),
+		Project: projectrepo.NewService(cfg.Mysql),
 		Sync:    clustersyncrepo.NewService(cfg.Mysql, cfg.K8s),
 	}
 }

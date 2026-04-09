@@ -1,3 +1,3 @@
 # console-api
 
-`console-api` is a placeholder service scaffold aligned with the kube-nova backend layout.
+`console-api` hosts runtime monitoring query endpoints (pod/node/cluster) to align with kube-nova architecture.

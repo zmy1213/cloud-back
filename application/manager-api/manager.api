@@ -10,4 +10,5 @@ info(
 import "api/cluster.api"
 import "api/node.api"
 import "api/app.api"
+import "api/project.api"
 import "api/sync.api"

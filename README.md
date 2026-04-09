@@ -8,8 +8,8 @@
 cloud-back/
 ├── application/           # 微服务应用层 (API/RPC 风格)
 │   ├── portal-api/        # 认证与基础能力（已实现）
-│   ├── manager-api/       # 占位
-│   ├── console-api/       # 占位
+│   ├── manager-api/       # 集群配置管理（已实现）
+│   ├── console-api/       # 监控查询接口（已实现）
 │   └── workload-api/      # 占位
 ├── common/                # 公共配置/工具
 ├── pkg/                   # mysql/redis/minio/jwt 等封装
@@ -183,6 +183,7 @@ cd /Users/zhuzhumingyang/githubProjects/kube-nova/cloud-back
 go mod tidy
 make run-portal-api
 make run-manager-api
+make run-console-api
 ```
 
 ## 连接测试（推荐）

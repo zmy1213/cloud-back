@@ -1,0 +1,233 @@
+syntax = "v1"
+
+info(
+    title: "Project Management API"
+    desc: "项目管理相关接口（cloud-back 精简版）"
+    author: "cloud-back"
+    version: "1.0"
+)
+
+type (
+    Project {
+        Id uint64 `json:"id"`
+        Name string `json:"name"`
+        Uuid string `json:"uuid"`
+        Description string `json:"description"`
+        IsSystem int64 `json:"isSystem"`
+        CreatedBy string `json:"createdBy"`
+        UpdatedBy string `json:"updatedBy"`
+        CreatedAt int64 `json:"createdAt"`
+        UpdatedAt int64 `json:"updatedAt"`
+        AdminCount int64 `json:"adminCount"`
+        ResourceCount int64 `json:"resourceCount"`
+    }
+
+    AddProjectRequest {
+        Name string `json:"name"`
+        Description string `json:"description,optional"`
+        IsSystem int64 `json:"isSystem,optional"`
+    }
+
+    UpdateProjectRequest {
+        Id uint64 `path:"id"`
+        Name string `json:"name"`
+        Description string `json:"description,optional"`
+    }
+
+    SearchProjectRequest {
+        Page uint64 `form:"page,optional"`
+        PageSize uint64 `form:"pageSize,optional"`
+        Name string `form:"name,optional"`
+        Uuid string `form:"uuid,optional"`
+    }
+
+    SearchProjectResponse {
+        Items []Project `json:"items"`
+        Total uint64 `json:"total"`
+    }
+
+    ProjectAdmin {
+        Id uint64 `json:"id"`
+        ProjectId uint64 `json:"projectId"`
+        UserId uint64 `json:"userId"`
+        CreatedAt int64 `json:"createdAt"`
+    }
+
+    AddProjectAdminRequest {
+        ProjectId uint64 `json:"projectId"`
+        UserIds []uint64 `json:"userIds"`
+    }
+
+    GetProjectAdminsRequest {
+        ProjectId uint64 `form:"projectId"`
+    }
+
+    GetProjectsByUserIdRequest {
+        UserId uint64 `form:"userId,optional"`
+        Name string `form:"name,optional"`
+    }
+
+    ProjectCluster {
+        Id uint64 `json:"id"`
+        ClusterUuid string `json:"clusterUuid"`
+        ClusterName string `json:"clusterName"`
+        ProjectId uint64 `json:"projectId"`
+        CpuLimit float64 `json:"cpuLimit"`
+        CpuOvercommitRatio float64 `json:"cpuOvercommitRatio"`
+        CpuCapacity float64 `json:"cpuCapacity"`
+        CpuAllocated float64 `json:"cpuAllocated"`
+        MemLimit float64 `json:"memLimit"`
+        MemOvercommitRatio float64 `json:"memOvercommitRatio"`
+        MemCapacity float64 `json:"memCapacity"`
+        MemAllocated float64 `json:"memAllocated"`
+        StorageLimit float64 `json:"storageLimit"`
+        StorageAllocated float64 `json:"storageAllocated"`
+        GpuLimit float64 `json:"gpuLimit"`
+        GpuOvercommitRatio float64 `json:"gpuOvercommitRatio"`
+        GpuCapacity float64 `json:"gpuCapacity"`
+        GpuAllocated float64 `json:"gpuAllocated"`
+        PodsLimit int64 `json:"podsLimit"`
+        PodsAllocated int64 `json:"podsAllocated"`
+        ConfigmapLimit int64 `json:"configmapLimit"`
+        ConfigmapAllocated int64 `json:"configmapAllocated"`
+        SecretLimit int64 `json:"secretLimit"`
+        SecretAllocated int64 `json:"secretAllocated"`
+        PvcLimit int64 `json:"pvcLimit"`
+        PvcAllocated int64 `json:"pvcAllocated"`
+        EphemeralStorageLimit float64 `json:"ephemeralStorageLimit"`
+        EphemeralStorageAllocated float64 `json:"ephemeralStorageAllocated"`
+        ServiceLimit int64 `json:"serviceLimit"`
+        ServiceAllocated int64 `json:"serviceAllocated"`
+        LoadbalancersLimit int64 `json:"loadbalancersLimit"`
+        LoadbalancersAllocated int64 `json:"loadbalancersAllocated"`
+        NodeportsLimit int64 `json:"nodeportsLimit"`
+        NodeportsAllocated int64 `json:"nodeportsAllocated"`
+        DeploymentsLimit int64 `json:"deploymentsLimit"`
+        DeploymentsAllocated int64 `json:"deploymentsAllocated"`
+        JobsLimit int64 `json:"jobsLimit"`
+        JobsAllocated int64 `json:"jobsAllocated"`
+        CronjobsLimit int64 `json:"cronjobsLimit"`
+        CronjobsAllocated int64 `json:"cronjobsAllocated"`
+        DaemonsetsLimit int64 `json:"daemonsetsLimit"`
+        DaemonsetsAllocated int64 `json:"daemonsetsAllocated"`
+        StatefulsetsLimit int64 `json:"statefulsetsLimit"`
+        StatefulsetsAllocated int64 `json:"statefulsetsAllocated"`
+        IngressesLimit int64 `json:"ingressesLimit"`
+        IngressesAllocated int64 `json:"ingressesAllocated"`
+        CreatedBy string `json:"createdBy"`
+        UpdatedBy string `json:"updatedBy"`
+        CreatedAt int64 `json:"createdAt"`
+        UpdatedAt int64 `json:"updatedAt"`
+    }
+
+    AddProjectClusterRequest {
+        ClusterUuid string `json:"clusterUuid"`
+        ProjectId uint64 `json:"projectId"`
+        CpuLimit float64 `json:"cpuLimit"`
+        CpuOvercommitRatio float64 `json:"cpuOvercommitRatio,optional"`
+        CpuCapacity float64 `json:"cpuCapacity,optional"`
+        MemLimit float64 `json:"memLimit"`
+        MemOvercommitRatio float64 `json:"memOvercommitRatio,optional"`
+        MemCapacity float64 `json:"memCapacity,optional"`
+        StorageLimit float64 `json:"storageLimit,optional"`
+        GpuLimit float64 `json:"gpuLimit,optional"`
+        GpuOvercommitRatio float64 `json:"gpuOvercommitRatio,optional"`
+        GpuCapacity float64 `json:"gpuCapacity,optional"`
+        PodsLimit int64 `json:"podsLimit,optional"`
+        ConfigmapLimit int64 `json:"configmapLimit,optional"`
+        SecretLimit int64 `json:"secretLimit,optional"`
+        PvcLimit int64 `json:"pvcLimit,optional"`
+        EphemeralStorageLimit float64 `json:"ephemeralStorageLimit,optional"`
+        ServiceLimit int64 `json:"serviceLimit,optional"`
+        LoadbalancersLimit int64 `json:"loadbalancersLimit,optional"`
+        NodeportsLimit int64 `json:"nodeportsLimit,optional"`
+        DeploymentsLimit int64 `json:"deploymentsLimit,optional"`
+        JobsLimit int64 `json:"jobsLimit,optional"`
+        CronjobsLimit int64 `json:"cronjobsLimit,optional"`
+        DaemonsetsLimit int64 `json:"daemonsetsLimit,optional"`
+        StatefulsetsLimit int64 `json:"statefulsetsLimit,optional"`
+        IngressesLimit int64 `json:"ingressesLimit,optional"`
+    }
+
+    UpdateProjectClusterRequest {
+        Id uint64 `path:"id"`
+        CpuLimit float64 `json:"cpuLimit"`
+        CpuOvercommitRatio float64 `json:"cpuOvercommitRatio,optional"`
+        CpuCapacity float64 `json:"cpuCapacity,optional"`
+        MemLimit float64 `json:"memLimit"`
+        MemOvercommitRatio float64 `json:"memOvercommitRatio,optional"`
+        MemCapacity float64 `json:"memCapacity,optional"`
+        StorageLimit float64 `json:"storageLimit,optional"`
+        GpuLimit float64 `json:"gpuLimit,optional"`
+        GpuOvercommitRatio float64 `json:"gpuOvercommitRatio,optional"`
+        GpuCapacity float64 `json:"gpuCapacity,optional"`
+        PodsLimit int64 `json:"podsLimit,optional"`
+        ConfigmapLimit int64 `json:"configmapLimit,optional"`
+        SecretLimit int64 `json:"secretLimit,optional"`
+        PvcLimit int64 `json:"pvcLimit,optional"`
+        EphemeralStorageLimit float64 `json:"ephemeralStorageLimit,optional"`
+        ServiceLimit int64 `json:"serviceLimit,optional"`
+        LoadbalancersLimit int64 `json:"loadbalancersLimit,optional"`
+        NodeportsLimit int64 `json:"nodeportsLimit,optional"`
+        DeploymentsLimit int64 `json:"deploymentsLimit,optional"`
+        JobsLimit int64 `json:"jobsLimit,optional"`
+        CronjobsLimit int64 `json:"cronjobsLimit,optional"`
+        DaemonsetsLimit int64 `json:"daemonsetsLimit,optional"`
+        StatefulsetsLimit int64 `json:"statefulsetsLimit,optional"`
+        IngressesLimit int64 `json:"ingressesLimit,optional"`
+    }
+
+    SearchProjectClusterRequest {
+        ProjectId uint64 `form:"projectId"`
+        ClusterUuid string `form:"clusterUuid,optional"`
+    }
+
+    ProjectWorkspace {
+        Id uint64 `json:"id"`
+        ProjectClusterId uint64 `json:"projectClusterId"`
+        ProjectId uint64 `json:"projectId"`
+        ClusterUuid string `json:"clusterUuid"`
+        ClusterName string `json:"clusterName"`
+        Name string `json:"name"`
+        Namespace string `json:"namespace"`
+        Description string `json:"description"`
+        CpuAllocated float64 `json:"cpuAllocated"`
+        MemAllocated float64 `json:"memAllocated"`
+        StorageAllocated float64 `json:"storageAllocated"`
+        GpuAllocated float64 `json:"gpuAllocated"`
+        PodsAllocated int64 `json:"podsAllocated"`
+        CreatedBy string `json:"createdBy"`
+        UpdatedBy string `json:"updatedBy"`
+        CreatedAt int64 `json:"createdAt"`
+        UpdatedAt int64 `json:"updatedAt"`
+    }
+
+    AddProjectWorkspaceRequest {
+        ProjectClusterId uint64 `json:"projectClusterId"`
+        Name string `json:"name"`
+        Namespace string `json:"namespace"`
+        Description string `json:"description,optional"`
+        CpuAllocated float64 `json:"cpuAllocated,optional"`
+        MemAllocated float64 `json:"memAllocated,optional"`
+        StorageAllocated float64 `json:"storageAllocated,optional"`
+        GpuAllocated float64 `json:"gpuAllocated,optional"`
+        PodsAllocated int64 `json:"podsAllocated,optional"`
+    }
+
+    UpdateProjectWorkspaceRequest {
+        Id uint64 `path:"id"`
+        Name string `json:"name"`
+        Description string `json:"description,optional"`
+        CpuAllocated float64 `json:"cpuAllocated,optional"`
+        MemAllocated float64 `json:"memAllocated,optional"`
+        StorageAllocated float64 `json:"storageAllocated,optional"`
+        GpuAllocated float64 `json:"gpuAllocated,optional"`
+        PodsAllocated int64 `json:"podsAllocated,optional"`
+    }
+
+    SearchProjectWorkspaceRequest {
+        ProjectClusterId uint64 `form:"projectClusterId"`
+        Name string `form:"name,optional"`
+        Namespace string `form:"namespace,optional"`
+    }
+)
