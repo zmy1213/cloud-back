@@ -7,6 +7,15 @@ Webhook:
   Token: "your-secret-token-here-change-me-in-production111"
 #  AlertmanagerToken: "your-secret-token-here-change-me-in-production11"
 
+RlPolicy:
+  Enabled: true
+  Required: true
+  Endpoint: "http://127.0.0.1:18080"
+  Timeout: 3000
+  ClusterModel: "maskable-ppo-cluster-v1"
+  NodeModel: "maskable-ppo-node-v1"
+  DefaultPricePerKwh: 0.8
+
 DevServer:
   Enabled: true
   Port: 9999              # 默认 6060

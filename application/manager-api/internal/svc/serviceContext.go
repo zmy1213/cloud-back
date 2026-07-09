@@ -8,7 +8,9 @@ import (
 	"github.com/yanshicheng/kube-nova/application/portal-rpc/client/storageservice"
 	"github.com/yanshicheng/kube-nova/application/portal-rpc/client/sysauthservice"
 	"github.com/yanshicheng/kube-nova/common/interceptors"
+	k8scluster "github.com/yanshicheng/kube-nova/common/k8smanager/cluster"
 	"github.com/yanshicheng/kube-nova/common/middleware"
+	promcluster "github.com/yanshicheng/kube-nova/common/prometheusmanager/cluster"
 	"github.com/yanshicheng/kube-nova/common/verify"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -24,7 +26,8 @@ type ServiceContext struct {
 	JWTAuthMiddleware rest.Middleware
 	StoreRpc          storageservice.StorageService
 	ManagerRpc        managerservice.ManagerService
-	//PrometheusManager *cluster2.PrometheusManager
+	K8sManager        k8scluster.Manager
+	PrometheusManager *promcluster.PrometheusManager
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -44,6 +47,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		zrpc.WithUnaryClientInterceptor(interceptors.ClientMetadataInterceptor()),
 		zrpc.WithUnaryClientInterceptor(interceptors.ClientErrorInterceptor()),
 	)
+	rds := redis.MustNewRedis(c.Cache)
+	managerService := managerservice.NewManagerService(managerRpc)
 	var dbConn sqlx.SqlConn
 	if strings.TrimSpace(c.Mysql.DataSource) != "" {
 		dbConn = sqlx.NewMysql(c.Mysql.DataSource)
@@ -63,13 +68,14 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 	return &ServiceContext{
 		Config:    c,
-		Cache:     redis.MustNewRedis(c.Cache),
+		Cache:     rds,
 		DB:        dbConn,
 		Validator: validator,
 		JWTAuthMiddleware: middleware.NewJWTAuthMiddleware(
 			sysauthservice.NewSysAuthService(authRpc)).Handle,
-		ManagerRpc: managerservice.NewManagerService(managerRpc),
-		StoreRpc:   storageservice.NewStorageService(storeRpc),
-		//PrometheusManager: cluster2.NewPrometheusManager(managerservice.NewManagerService(managerRpc)),
+		ManagerRpc:        managerService,
+		StoreRpc:          storageservice.NewStorageService(storeRpc),
+		K8sManager:        k8scluster.NewManager(managerService, rds),
+		PrometheusManager: promcluster.NewPrometheusManager(managerService, rds),
 	}
 }
